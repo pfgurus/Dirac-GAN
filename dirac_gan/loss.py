@@ -93,6 +93,25 @@ class NSGANLossDiscriminator(GANLossDiscriminator):
         super(NSGANLossDiscriminator, self).__init__()
 
 
+def modifier(x):
+    return  -F.softplus(-x) + 1
+
+class ModifiedNSGANLossGenerator(nn.Module):
+    def forward(self, discriminator_prediction_fake: torch.Tensor, **kwargs) -> torch.Tensor:
+        discriminator_prediction_fake = modifier(discriminator_prediction_fake)
+        return F.softplus(- discriminator_prediction_fake).mean()
+
+class ModifiedNSGANLossDiscriminator(nn.Module):
+    def forward(self, discriminator_prediction_real: torch.Tensor,
+                discriminator_prediction_fake: torch.Tensor, **kwargs) -> torch.Tensor:
+
+        discriminator_prediction_fake = modifier(discriminator_prediction_fake)
+        discriminator_prediction_real = modifier(discriminator_prediction_real)
+
+        return F.softplus(-discriminator_prediction_real).mean() \
+               + F.softplus(discriminator_prediction_fake).mean()
+
+
 class WassersteinGANLossGenerator(nn.Module):
     """
     This class implements the Wasserstein generator GAN loss proposed in:

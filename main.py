@@ -116,6 +116,7 @@ class App(QMainWindow):
         self.gan_list_box = QComboBox(self)
         self.gan_list_box.addItem("Standard GAN")
         self.gan_list_box.addItem("Non-saturating GAN")
+        self.gan_list_box.addItem("Modified non-saturating GAN")
         self.gan_list_box.addItem("Wasserstein GAN")
         self.gan_list_box.addItem("Wasserstein GAN GP")
         self.gan_list_box.addItem("Least squares GAN")
@@ -152,6 +153,9 @@ class App(QMainWindow):
         elif gan_loss == "Non-saturating GAN":
             generator_loss: nn.Module = dirac_gan.NSGANLossGenerator()
             discriminator_loss: nn.Module = dirac_gan.NSGANLossDiscriminator()
+        elif gan_loss == "Modified non-saturating GAN":
+            generator_loss: nn.Module = dirac_gan.ModifiedNSGANLossGenerator()
+            discriminator_loss: nn.Module = dirac_gan.ModifiedNSGANLossDiscriminator()
         elif gan_loss == "Wasserstein GAN":
             generator_loss: nn.Module = dirac_gan.WassersteinGANLossGenerator()
             discriminator_loss: nn.Module = dirac_gan.WassersteinGANLossDiscriminator()
