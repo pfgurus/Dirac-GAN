@@ -442,5 +442,4 @@ class MCGAN2024LossGenerator(nn.Module):
         super().__init__()
 
     def forward(self, discriminator_prediction_fake, discriminator_prediction_real, **kwargs) -> torch.Tensor:
-        # Loss can be computed by utilizing the softplus function since softplus combines both sigmoid and log
-        return  F.mse_loss(discriminator_prediction_fake, discriminator_prediction_real).mean()
+        return  F.mse_loss(discriminator_prediction_fake, discriminator_prediction_real)
