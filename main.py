@@ -122,6 +122,7 @@ class App(QMainWindow):
         self.gan_list_box.addItem("Least squares GAN")
         self.gan_list_box.addItem("DRAGAN")
         self.gan_list_box.addItem("Hinge GAN")
+        self.gan_list_box.addItem("MCGAN2024")
         self.gan_list_box.resize(300, 50)
         self.gan_list_box.move(self.width - 300, self.height - 100)
         # Make run button
@@ -168,6 +169,9 @@ class App(QMainWindow):
         elif gan_loss == "DRAGAN":
             generator_loss: nn.Module = dirac_gan.DRAGANLossGenerator()
             discriminator_loss: nn.Module = dirac_gan.DRAGANLossDiscriminator()
+        elif gan_loss == "MCGAN2024":
+            generator_loss: nn.Module = dirac_gan.MCGAN2024LossGenerator()
+            discriminator_loss: nn.Module = dirac_gan.GANLossDiscriminator()
         else:
             generator_loss: nn.Module = dirac_gan.HingeGANLossGenerator()
             discriminator_loss: nn.Module = dirac_gan.HingeGANLossDiscriminator()

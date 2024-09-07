@@ -431,3 +431,16 @@ class DRAGANLossDiscriminator(nn.Module):
         grad_real = torch.autograd.grad(outputs=real_prediction.sum(), inputs=real_samples, create_graph=True)[0]
         loss = loss + HYPERPARAMETERS["dra_w"] * (grad_real.norm(dim=1) - 1.).pow(2)
         return loss
+
+
+class MCGAN2024LossGenerator(nn.Module):
+    """
+    https://arxiv.org/abs/2405.17191v1
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, discriminator_prediction_fake, discriminator_prediction_real, **kwargs) -> torch.Tensor:
+        # Loss can be computed by utilizing the softplus function since softplus combines both sigmoid and log
+        return  F.mse_loss(discriminator_prediction_fake, discriminator_prediction_real).mean()

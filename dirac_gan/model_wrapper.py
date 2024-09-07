@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 import torch
 import torch.nn as nn
 
+from . import MCGAN2024LossGenerator
 from .config import HYPERPARAMETERS
 from .loss import WassersteinGANLossGPDiscriminator, R1, DRAGANLossDiscriminator, RLC
 
@@ -68,7 +69,17 @@ class ModelWrapper(object):
             # Make fake prediction
             fake_prediction: torch.Tensor = self.discriminator(self.generator(get_noise(1)))
             # Compute generator loss
-            generator_loss: torch.Tensor = self.generator_loss_function(fake_prediction)
+            if isinstance(self.generator_loss_function, MCGAN2024LossGenerator):
+                with torch.no_grad():
+                    real_samples: torch.Tensor = torch.zeros(HYPERPARAMETERS["batch_size"], 1)
+                    if instance_noise:
+                        real_samples: torch.Tensor = real_samples \
+                                                     + torch.randn(HYPERPARAMETERS["batch_size"], 1) \
+                                                     * HYPERPARAMETERS["in_scale"]
+                    real_prediction = self.discriminator(real_samples).detach()
+                generator_loss: torch.Tensor = self.generator_loss_function(fake_prediction, real_prediction)
+            else:
+                generator_loss: torch.Tensor = self.generator_loss_function(fake_prediction)
             # Compute gradients
             generator_loss.backward()
             # Save generator gradient
@@ -144,7 +155,17 @@ class ModelWrapper(object):
             # Make fake prediction
             fake_prediction: torch.Tensor = self.discriminator(self.generator(get_noise(HYPERPARAMETERS["batch_size"])))
             # Compute generator loss
-            generator_loss: torch.Tensor = self.generator_loss_function(fake_prediction)
+            if isinstance(self.generator_loss_function, MCGAN2024LossGenerator):
+                with torch.no_grad():
+                    real_samples: torch.Tensor = torch.zeros(HYPERPARAMETERS["batch_size"], 1)
+                    if instance_noise:
+                        real_samples: torch.Tensor = real_samples \
+                                                     + torch.randn(HYPERPARAMETERS["batch_size"], 1) \
+                                                     * HYPERPARAMETERS["in_scale"]
+                    real_prediction = self.discriminator(real_samples).detach()
+                generator_loss: torch.Tensor = self.generator_loss_function(fake_prediction, real_prediction)
+            else:
+                generator_loss: torch.Tensor = self.generator_loss_function(fake_prediction)
             # Compute gradients
             generator_loss.backward()
             # Perform optimization
